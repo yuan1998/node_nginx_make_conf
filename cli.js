@@ -4,7 +4,6 @@ import fs from 'fs';
 import unzipper from 'unzipper';
 import Tmp from './tmp_conf.js';
 
-console.log(chalk.blue('Hello world!'));
 
 const readDirZipFile = (dirPath) => {
     let result = [];
@@ -22,7 +21,7 @@ const readDirZipFile = (dirPath) => {
 
 const unzipFile = (file) => {
     return new Promise((resolve, reject) => {
-        const files = {key: '',crt:''};
+        const files = {key: '', crt: ''};
         fs.createReadStream(file).pipe(unzipper.Parse()).on('entry', function (entry) {
             console.log("entry", entry.path);
             if (/[key|crt|pem]$/.test(entry.path)) {
@@ -50,22 +49,33 @@ const makeContent = (file) => {
     // let tmp = Tmp.slice();
     // console.log("Tmp",tmp.replace('/\$DOMAIN\$/g',file.domain));
     return Tmp.slice()
-        .replace(/\$DOMAIN\$/g,file.domain)
-        .replace(/\$CRT\$/g,file.cret.crt)
-        .replace(/\$KEY\$/g,file.cret.key)
+        .replace(/\$DOMAIN\$/g, file.domain)
+        .replace(/\$CRT\$/g, file.cret.crt)
+        .replace(/\$KEY\$/g, file.cret.key)
 }
 
 const generateConf = (file) => {
     let content = makeContent(file);
     fs.writeFileSync(`./conf.d/${file.domain}-nginx.conf`, content);
 }
+const deleteFile = (path) => {
+    if (fs.existsSync(path)) {
+        fs.unlinkSync(path)
+    }
+}
 
 (() => {
     let file = readDirZipFile('xiezi')
 
     file.forEach(async (file) => {
+
         file.domain = parseDomain(file.zipName);
+        console.log(chalk.blue(`开始创建 ${file.domain}`));
+
         file.cret = await unzipFile(file.zipFullPath);
         generateConf(file);
+        console.log(chalk.blue(`创建成功 ${file.domain}`));
+        deleteFile(file.zipFullPath);
+        console.log(chalk.blue(`删除证书文件 ${file.zipName}`));
     })
 })()
