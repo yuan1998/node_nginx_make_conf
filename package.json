@@ -1,0 +1,19 @@
+{
+  "name": "node_make_nginx_conf",
+  "version": "1.0.0",
+  "description": "",
+  "main": "cli.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "chalk": "^5.0.0",
+    "unzipper": "^0.10.11"
+  },
+  "bin": {
+    "make-conf": "./cli.js"
+  }
+}
