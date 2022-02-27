@@ -3,10 +3,12 @@ import chalk from 'chalk';
 import fs from 'fs';
 import unzipper from 'unzipper';
 import Tmp from './tmp_conf.js';
+import path from 'path';
 
 
 const readDirZipFile = (dirPath) => {
     let result = [];
+    dirPath = path.resolve(dirPath);
     let files = fs.readdirSync(dirPath);
     files.filter((item) => {
         return /\.zip$/.test(item)
@@ -30,7 +32,8 @@ const unzipFile = (file) => {
                 } else {
                     files.crt = entry.path;
                 }
-                entry.pipe(fs.createWriteStream(`./cert/${entry.path}`));
+
+                entry.pipe(fs.createWriteStream(path.resolve(`cert/${entry.path}`)));
             } else {
                 entry.autodrain();
             }
@@ -56,7 +59,8 @@ const makeContent = (file) => {
 
 const generateConf = (file) => {
     let content = makeContent(file);
-    fs.writeFileSync(`./conf.d/${file.domain}-nginx.conf`, content);
+
+    fs.writeFileSync(path.resolve(`conf.d/${file.domain}-nginx.conf`), content);
 }
 const deleteFile = (path) => {
     if (fs.existsSync(path)) {
